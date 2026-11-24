@@ -2415,6 +2415,54 @@ float radDoseRate = 0.0f;
 				radDoseRate = weightedActivity * 0.25f;
 			}
 		}
+		float pressureBar = 1.013f + sample.AirPressure * 0.05f;
+		if (pressureBar < 0.0f)
+			pressureBar = 0.0f;
+		float humidityPercent = 0.0f;
+		float uvIndex = 0.0f;
+		float lightLumens = 0.0f;
+		if (sample.isMouseInSim && sim)
+		{
+			int cx = sample.PositionX, cy = sample.PositionY, totalCells = 0;
+			float moisture = 0.0f;
+			for (int dy = -15; dy <= 15; dy++)
+			{
+				int ny = cy + dy;
+				if (ny < CELL || ny >= YRES - CELL) continue;
+				for (int dx = -15; dx <= 15; dx++)
+				{
+					int nx = cx + dx;
+					if (nx < CELL || nx >= XRES - CELL) continue;
+					totalCells++;
+					int pt = TYP(sim->pmap[ny][nx]);
+					if (pt == PT_WTRV || pt == PT_FOG) moisture += 2.5f;
+					else if (pt == PT_WATR || pt == PT_DSTW || pt == PT_SLTW) moisture += 1.0f;
+					else if (pt == PT_ICEI || pt == PT_SNOW) moisture += 0.5f;
+					else if (pt == PT_PLSM || pt == PT_LIGH) { lightLumens += 45.0f; uvIndex += 0.35f; }
+					else if (pt == PT_FIRE || pt == PT_EMBR) { lightLumens += 18.0f; uvIndex += 0.04f; }
+
+					unsigned int ph = sim->photons[ny][nx];
+					if (ph)
+					{
+						int pht = TYP(ph);
+						if (pht == PT_PROT) uvIndex += 0.15f;
+						else if (pht == PT_ELEC) { lightLumens += 12.0f; uvIndex += 0.10f; }
+						else if (pht == PT_PHOT || pht == PT_BRAY)
+						{
+							int wl = sim->parts[ID(ph)].ctype & 0x3FFFFFFF;
+							lightLumens += (wl & 0x01FFFFE0) ? 32.0f : 14.0f;
+							if (wl & 0x3FC00000) uvIndex += 0.45f;
+						}
+					}
+				}
+			}
+			if (totalCells > 0)
+			{
+				humidityPercent = (100.0f * moisture) / float(totalCells);
+				if (humidityPercent > 100.0f) humidityPercent = 100.0f;
+			}
+		}
+
 		int type = sample.particle.type;
 		if (type)
 		{
@@ -2517,7 +2565,7 @@ float radDoseRate = 0.0f;
 
 			}
 			else
-			{
+{
 				sampleInfo << c->BasicParticleInfo(sample.particle);
 				sampleInfo << ", Temp: ";
 				format::RenderTemperature(sampleInfo, sample.particle.temp, c->GetTemperatureScale());
@@ -2540,6 +2588,8 @@ float radDoseRate = 0.0f;
 		if (sample.isMouseInSim)
 		{
 			sampleInfo << ", Rad: " << radDoseRate << " mSv/h, O2: " << o2Percent << "%";
+						sampleInfo << ", P: " << pressureBar << " bar, Hum: " << humidityPercent << "%, UV: " << uvIndex << ", Light: " << lightLumens << " lm";
+
 		}
 
 		int textWidth = Graphics::TextSize(sampleInfo.Build()).X - 1;
