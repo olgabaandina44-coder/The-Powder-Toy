@@ -2462,7 +2462,81 @@ float radDoseRate = 0.0f;
 				if (humidityPercent > 100.0f) humidityPercent = 100.0f;
 			}
 		}
+float voltageVolts = 0.0f;
+		float magneticFieldMt = 0.0f;
+		if (sample.isMouseInSim && sim)
+		{
+			int cx = sample.PositionX, cy = sample.PositionY;
+			float potentialSum = 0.0f;
+			float bFluxSum = 0.0f;
+			int btryCount = 0;
 
+			for (int dy = -15; dy <= 15; dy++)
+			{
+				int ny = cy + dy;
+				if (ny < CELL || ny >= YRES - CELL) continue;
+				for (int dx = -15; dx <= 15; dx++)
+				{
+					int nx = cx + dx;
+					if (nx < CELL || nx >= XRES - CELL) continue;
+
+					float dist = 1.0f + 0.7f * float(abs(dx) + abs(dy));
+
+					unsigned int pm = sim->pmap[ny][nx];
+					if (pm)
+					{
+						int pt = TYP(pm);
+						if (pt == PT_BTRY)
+						{
+							btryCount++;
+							bFluxSum += 0.15f / dist;
+						}
+						else if (pt == PT_SPRK)
+						{
+							float charge = float(sim->parts[ID(pm)].life) / 4.0f;
+							if (charge < 0.25f) charge = 0.25f;
+							potentialSum += 12.0f * charge;
+							bFluxSum += (4.5f * charge) / dist;
+						}
+						else if (pt == PT_TESC)
+						{
+							potentialSum += 85.0f;
+							bFluxSum += 18.0f / dist;
+						}
+						else if (pt == PT_LIGH || pt == PT_PLSM)
+						{
+							potentialSum += 140.0f;
+							bFluxSum += 24.0f / dist;
+						}
+						else if (pt == PT_EMP)
+						{
+							potentialSum += 200.0f;
+							bFluxSum += 40.0f / dist;
+						}
+					}
+
+					unsigned int ph = sim->photons[ny][nx];
+					if (ph)
+					{
+						int pht = TYP(ph);
+						if (pht == PT_ELEC || pht == PT_PROT)
+						{
+							potentialSum += 18.0f;
+							bFluxSum += 6.0f / dist;
+						}
+					}
+				}
+			}
+
+			if (sim->emap[cy / CELL][cx / CELL] > 0)
+			{
+				potentialSum += float(sim->emap[cy / CELL][cx / CELL]) * 3.0f;
+				bFluxSum += float(sim->emap[cy / CELL][cx / CELL]) * 0.8f;
+			}
+
+			voltageVolts = (btryCount > 0 ? 12.0f : 0.0f) + potentialSum * 0.25f;
+			magneticFieldMt = bFluxSum * 0.35f;
+		}
 		int type = sample.particle.type;
 		if (type)
 		{
@@ -2592,17 +2666,60 @@ float radDoseRate = 0.0f;
 
 		}
 
-		int textWidth = Graphics::TextSize(sampleInfo.Build()).X - 1;
-		g->BlendFilledRect(RectSized(Vec2{ XRES-20-textWidth, 12 }, Vec2{ textWidth+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
-		g->BlendText({ XRES-16-textWidth, 16 }, sampleInfo.Build(), 0xFFFFFF_rgb .WithAlpha(int(alpha*0.75f)));
+String hudLine1 = sampleInfo.Build();
+		String hudLine2 = "";
+		int maxHudWidth = XRES - 125;
+		int textWidth = Graphics::TextSize(hudLine1).X - 1;
+		if (textWidth > maxHudWidth)
+		{
+			size_t splitPos = 0;
+			for (size_t idx = 0; idx + 1 < hudLine1.length(); idx++)
+			{
+				if (hudLine1[idx] == ',' && hudLine1[idx + 1] == ' ')
+				{
+					if (Graphics::TextSize(hudLine1.Substr(0, idx)).X - 1 <= maxHudWidth)
+						splitPos = idx;
+					else
+						break;
+				}
+			}
+			if (splitPos > 0)
+			{
+				hudLine2 = hudLine1.Substr(splitPos + 2);
+				hudLine1 = hudLine1.Substr(0, splitPos);
+				textWidth = Graphics::TextSize(hudLine1).X - 1;
+			}
+		}
 
+		int hudY = 12;
+		g->BlendFilledRect(RectSized(Vec2{ XRES-20-textWidth, hudY }, Vec2{ textWidth+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
+		g->BlendText({ XRES-16-textWidth, hudY + 4 }, hudLine1, 0xFFFFFF_rgb .WithAlpha(int(alpha*0.75f)));
+		hudY += 15;
+
+		if (hudLine2.length() > 0)
+		{
+			int w2 = Graphics::TextSize(hudLine2).X - 1;
+			g->BlendFilledRect(RectSized(Vec2{ XRES-20-w2, hudY }, Vec2{ w2+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
+			g->BlendText({ XRES-16-w2, hudY + 4 }, hudLine2, 0xFFFFFF_rgb .WithAlpha(int(alpha*0.75f)));
+			hudY += 15;
+		}
+
+		if (sample.isMouseInSim)
+		{
+			StringBuilder emInfo;
+			emInfo << Format::Precision(2) << "V: " << voltageVolts << " V, B: " << magneticFieldMt << " mT";
+			int emWidth = Graphics::TextSize(emInfo.Build()).X - 1;
+			g->BlendFilledRect(RectSized(Vec2{ XRES-20-emWidth, hudY }, Vec2{ emWidth+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
+			g->BlendText({ XRES-16-emWidth, hudY + 4 }, emInfo.Build(), 0xFFFFFF_rgb .WithAlpha(int(alpha*0.75f)));
+		}
+		
 		if (wavelengthGfx)
 		{
 			int i, cr, cg, cb, j, h = 3, x = XRES-19-textWidth, y = 10;
 			int tmp;
 			g->BlendFilledRect(RectSized(Vec2{ x, y }, Vec2{ 30, h }), 0x404040_rgb .WithAlpha(alpha));
 			for (i = 0; i < 30; i++)
-			{
+				{
 				if ((wavelengthGfx >> i)&1)
 				{
 					// Need a spread of wavelengths to get a smooth spectrum, 5 bits seems to work reasonably well
