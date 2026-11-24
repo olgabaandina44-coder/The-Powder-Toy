@@ -2356,7 +2356,65 @@ void GameView::OnDraw()
 			alpha = 0;
 		StringBuilder sampleInfo;
 		sampleInfo << Format::Precision(2);
+float radDoseRate = 0.0f;
+		float o2Percent = 0.0f;
+		if (sample.isMouseInSim && sim)
+		{
+			int cx = sample.PositionX;
+			int cy = sample.PositionY;
+			int radR = 15;
+			int totalCells = 0;
+			int o2Count = 0;
+			float weightedActivity = 0.0f;
 
+			for (int dy = -radR; dy <= radR; dy++)
+			{
+				int ny = cy + dy;
+				if (ny < CELL || ny >= YRES - CELL)
+					continue;
+				for (int dx = -radR; dx <= radR; dx++)
+				{
+					int nx = cx + dx;
+					if (nx < CELL || nx >= XRES - CELL)
+						continue;
+					totalCells++;
+
+					unsigned int pm = sim->pmap[ny][nx];
+					if (pm)
+					{
+						int pt = TYP(pm);
+						if (pt == PT_O2 || pt == PT_LO2)
+							o2Count++;
+						else if (pt == PT_POLO)
+							weightedActivity += 1.8f;
+						else if (pt == PT_PLUT)
+							weightedActivity += 1.2f;
+						else if (pt == PT_URAN)
+							weightedActivity += 0.6f;
+						else if (pt == PT_ISOZ || pt == PT_ISZS || pt == PT_DEUT)
+							weightedActivity += 0.4f;
+					}
+
+					unsigned int ph = sim->photons[ny][nx];
+					if (ph)
+					{
+						int pht = TYP(ph);
+						if (pht == PT_NEUT)
+							weightedActivity += 10.0f;
+						else if (pht == PT_PROT)
+							weightedActivity += 2.0f;
+						else if (pht == PT_ELEC)
+							weightedActivity += 1.0f;
+					}
+				}
+			}
+
+			if (totalCells > 0)
+			{
+				o2Percent = (100.0f * o2Count) / float(totalCells);
+				radDoseRate = weightedActivity * 0.25f;
+			}
+		}
 		int type = sample.particle.type;
 		if (type)
 		{
@@ -2456,6 +2514,7 @@ void GameView::OnDraw()
 					sampleInfo << ", Tmp2: " << sample.particle.tmp2;
 
 				sampleInfo << ", Pressure: " << sample.AirPressure;
+
 			}
 			else
 			{
@@ -2477,6 +2536,10 @@ void GameView::OnDraw()
 		else
 		{
 			sampleInfo << "Empty";
+		}
+		if (sample.isMouseInSim)
+		{
+			sampleInfo << ", Rad: " << radDoseRate << " mSv/h, O2: " << o2Percent << "%";
 		}
 
 		int textWidth = Graphics::TextSize(sampleInfo.Build()).X - 1;
