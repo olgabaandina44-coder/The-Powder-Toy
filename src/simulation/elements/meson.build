@@ -195,6 +195,7 @@ simulation_elem_names = [
 	'RSSS',
 	'BASE',
 	'SEED',
+    'QFLX',
 ]
 
 simulation_elem_src = []
