@@ -12,3 +12,4 @@
 #include <algorithm>
 #include <cmath>
 #include <numbers>
+#define SC_RADIOACTIVE SC_NUCLEAR
