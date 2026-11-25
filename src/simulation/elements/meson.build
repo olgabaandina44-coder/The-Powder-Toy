@@ -1,4 +1,4 @@
-simulation_elem_names = [
+ simulation_elem_names = [
 	'NONE',
 	'DUST',
 	'WATR',
