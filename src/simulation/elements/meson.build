@@ -198,6 +198,7 @@ simulation_elem_names = [
     'QFLX',
 	'GRPH',
     'BORN',
+    'ALOY',
 
 ]
 
