@@ -1,10 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_ALUM()
+void Element::Element_MAGN()
 {
-	Identifier = "DEFAULT_PT_ALUM";
-	Name = "ALUM";
-	Colour = 0xB8C2CC_rgb;
+	Identifier = "DEFAULT_PT_MAGN";
+	Name = "MAGN";
+	Colour = 0xD8DDE6_rgb;
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -19,15 +19,15 @@ void Element::Element_ALUM()
 	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
-	Flammable = 0;
+	Flammable = 15;
 	Explosive = 0;
 	Meltable = 1;
-	Hardness = 4;
+	Hardness = 3;
 
-	Weight = 96;
+	Weight = 94;
 
-	HeatConduct = 220;
-	Description = "Aluminium (Z=13). Lightweight conductive metal with high thermal conductivity, melts at 660.3C.";
+	HeatConduct = 175;
+	Description = "Magnesium (Z=12). Light structural metal, burns with intense white flame at high temperatures.";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
@@ -37,6 +37,6 @@ void Element::Element_ALUM()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = 933.47f;
+	HighTemperature = 923.0f;
 	HighTemperatureTransition = PT_LAVA;
 }
