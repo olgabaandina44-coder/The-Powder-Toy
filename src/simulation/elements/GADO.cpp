@@ -1,0 +1,69 @@
+#include "simulation/ElementCommon.h"
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_GADO()
+{
+	Identifier = "DEFAULT_PT_GADO";
+	Name = "GADO";
+	Colour = 0x9299A1_rgb;
+	MenuVisible = 1;
+	MenuSection = SC_SOLIDS;
+	Enabled = 1;
+
+	Advection = 0.0f;
+	AirDrag = 0.00f * CFDS;
+	AirLoss = 0.90f;
+	Loss = 0.00f;
+	Collision = 0.0f;
+	Gravity = 0.0f;
+	Diffusion = 0.00f;
+	HotAir = 0.000f * CFDS;
+	Falldown = 0;
+
+	Flammable = 0;
+	Explosive = 0;
+	Meltable = 1;
+	Hardness = 3;
+
+	Weight = 99;
+
+	HeatConduct = 55;
+	Description = "Gadolinium (Z=64). Highest thermal neutron capture cross-section of any stable element, melts at 1312C.";
+
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
+
+	LowPressure = IPL;
+	LowPressureTransition = NT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
+	LowTemperature = ITL;
+	LowTemperatureTransition = NT;
+	HighTemperature = 1585.0f;
+	HighTemperatureTransition = PT_LAVA;
+
+	Update = &update;
+}
+
+static int update(UPDATE_FUNC_ARGS)
+{
+	for (int ry = -3; ry <= 3; ry++)
+	{
+		int ny = y + ry;
+		if (ny < CELL || ny >= YRES - CELL)
+			continue;
+		for (int rx = -3; rx <= 3; rx++)
+		{
+			int nx = x + rx;
+			if (nx < CELL || nx >= XRES - CELL)
+				continue;
+			unsigned int ph = sim->photons[ny][nx];
+			if (ph && TYP(ph) == PT_NEUT)
+			{
+				sim->kill_part(ID(ph));
+				parts[i].temp += 32.0f;
+			}
+		}
+	}
+	return 0;
+}
