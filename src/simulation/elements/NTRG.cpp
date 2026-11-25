@@ -36,7 +36,7 @@ void Element::Element_NTRG()
 	HighPressure = IPH;
 	HighPressureTransition = NT;
 	LowTemperature = 77.36f;
-	LowTemperatureTransition = PT_LN2;
+	LowTemperatureTransition = PT_LNTG;
 	HighTemperature = ITL;
 	HighTemperatureTransition = NT;
 }
