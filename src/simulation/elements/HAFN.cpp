@@ -1,10 +1,12 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_TANT()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_HAFN()
 {
-	Identifier = "DEFAULT_PT_TANT";
-	Name = "TANT";
-	Colour = 0x6A727A_rgb;
+	Identifier = "DEFAULT_PT_HAFN";
+	Name = "HAFN";
+	Colour = 0x737B82_rgb;
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -26,10 +28,10 @@ void Element::Element_TANT()
 
 	Weight = 100;
 
-	HeatConduct = 115;
-	Description = "Tantalum (Z=73). Ultra-refractory, completely acid-immune transition metal, melts at 3017C.";
+	HeatConduct = 75;
+	Description = "Hafnium (Z=72). Corrosion-proof refractory metal with extreme neutron capture cross-section for naval reactor rods, melts at 2233C.";
 
-	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_HOT_GLOW;
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -37,6 +39,31 @@ void Element::Element_TANT()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = 3290.0f;
+	HighTemperature = 2506.0f;
 	HighTemperatureTransition = PT_LAVA;
+
+	Update = &update;
+}
+
+static int update(UPDATE_FUNC_ARGS)
+{
+	for (int ry = -2; ry <= 2; ry++)
+	{
+		int ny = y + ry;
+		if (ny < CELL || ny >= YRES - CELL)
+			continue;
+		for (int rx = -2; rx <= 2; rx++)
+		{
+			int nx = x + rx;
+			if (nx < CELL || nx >= XRES - CELL)
+				continue;
+			unsigned int ph = sim->photons[ny][nx];
+			if (ph && TYP(ph) == PT_NEUT)
+			{
+				sim->kill_part(ID(ph));
+				parts[i].temp += 30.0f;
+			}
+		}
+	}
+	return 0;
 }
