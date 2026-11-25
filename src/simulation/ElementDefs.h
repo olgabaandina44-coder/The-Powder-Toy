@@ -1,5 +1,4 @@
 #pragma once
-#define SC_RADIOACTIVE SC_NUCLEAR
 #include "SimulationConfig.h"
 #include <cstdint>
 
