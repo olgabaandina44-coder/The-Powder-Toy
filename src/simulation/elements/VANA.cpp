@@ -1,10 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_CHRM()
+void Element::Element_VANA()
 {
-	Identifier = "DEFAULT_PT_CHRM";
-	Name = "CHRM";
-	Colour = 0xC4CED4_rgb;
+	Identifier = "DEFAULT_PT_VANA";
+	Name = "VANA";
+	Colour = 0x7F8C8D_rgb;
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -22,12 +22,12 @@ void Element::Element_CHRM()
 	Flammable = 0;
 	Explosive = 0;
 	Meltable = 1;
-	Hardness = 1;
+	Hardness = 2;
 
 	Weight = 98;
 
-	HeatConduct = 140;
-	Description = "Chromium (Z=24). Lustrous, hard transition metal used in stainless steel, melts at 1907C.";
+	HeatConduct = 110;
+	Description = "Vanadium (Z=23). Hard, ductile transition metal with high corrosion resistance, melts at 1910C.";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
@@ -37,6 +37,6 @@ void Element::Element_CHRM()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = 2180.0f;
+	HighTemperature = 2183.0f;
 	HighTemperatureTransition = PT_LAVA;
 }
