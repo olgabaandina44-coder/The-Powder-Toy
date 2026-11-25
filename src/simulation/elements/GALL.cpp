@@ -1,10 +1,10 @@
 #include "simulation/ElementCommon.h"
 
-void Element::Element_GERM()
+void Element::Element_GALL()
 {
-	Identifier = "DEFAULT_PT_GERM";
-	Name = "GERM";
-	Colour = 0x7D848A_rgb;
+	Identifier = "DEFAULT_PT_GALL";
+	Name = "GALL";
+	Colour = 0xA8B5C2_rgb;
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
 	Enabled = 1;
@@ -22,12 +22,12 @@ void Element::Element_GERM()
 	Flammable = 0;
 	Explosive = 0;
 	Meltable = 1;
-	Hardness = 3;
+	Hardness = 5;
 
-	Weight = 97;
+	Weight = 98;
 
-	HeatConduct = 115;
-	Description = "Germanium (Z=32). Lustrous semiconductor metalloid used in fiber optics and infrared lenses, melts at 938.2C.";
+	HeatConduct = 100;
+	Description = "Gallium (Z=31). Soft silvery metal that melts in the human hand at 29.76C (302.91 K).";
 
 	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC;
 
@@ -37,6 +37,6 @@ void Element::Element_GERM()
 	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
-	HighTemperature = 1211.4f;
+	HighTemperature = 302.91f;
 	HighTemperatureTransition = PT_LAVA;
 }
