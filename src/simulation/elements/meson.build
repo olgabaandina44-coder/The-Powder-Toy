@@ -197,6 +197,8 @@ simulation_elem_names = [
 	'SEED',
     'QFLX',
 	'GRPH',
+    'BORN',
+
 ]
 
 simulation_elem_src = []
