@@ -2,23 +2,23 @@
 
 static int update(UPDATE_FUNC_ARGS);
 
-void Element::Element_QGP()
+void Element::Element_NTRM()
 {
-	Identifier = "DEFAULT_PT_QGP";
-	Name = "QGP";
-	Colour = 0xFF55FF_rgb;
+	Identifier = "DEFAULT_PT_NTRM";
+	Name = "NTRM";
+	Colour = 0xD0E4FF_rgb;
 	MenuVisible = 1;
-	MenuSection = SC_GAS;
+	MenuSection = SC_SOLIDS;
 	Enabled = 1;
 
-	Advection = 1.2f;
-	AirDrag = 0.01f * CFDS;
-	AirLoss = 0.99f;
-	Loss = 0.30f;
-	Collision = -0.1f;
+	Advection = 0.0f;
+	AirDrag = 0.00f * CFDS;
+	AirLoss = 0.90f;
+	Loss = 0.00f;
+	Collision = 0.0f;
 	Gravity = 0.0f;
-	Diffusion = 1.50f;
-	HotAir = 0.010f * CFDS;
+	Diffusion = 0.00f;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -26,13 +26,12 @@ void Element::Element_QGP()
 	Meltable = 0;
 	Hardness = 0;
 
-	Weight = 1;
-	DefaultProperties.temp = 9500.0f;
+	Weight = 100;
 
 	HeatConduct = 255;
-	Description = "Quark-Gluon Plasma. Extreme high-energy state of matter; hadronizes into protons, neutrons, and electrons as it cools.";
+	Description = "Neutronium. Ultra-dense degenerate nuclear matter from neutron stars; generates intense local gravity.";
 
-	Properties = TYPE_GAS | PROP_HOT_GLOW;
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_HOT_GLOW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -48,13 +47,10 @@ void Element::Element_QGP()
 
 static int update(UPDATE_FUNC_ARGS)
 {
-	sim->pv[y / CELL][x / CELL] += 1.5f;
-	if (parts[i].temp < 7500.0f || sim->rng.chance(1, 35))
+	sim->gravIn.mass[y / CELL][x / CELL] += 12.0f;
+	if (sim->rng.chance(1, 250) && !sim->photons[y][x])
 	{
-		int r = sim->rng.between(0, 2);
-		int target = (r == 0) ? PT_PROT : ((r == 1) ? PT_NEUT : PT_ELEC);
-		sim->part_change_type(i, x, y, target);
-		return 1;
+		sim->create_part(-3, x, y, PT_NEUT);
 	}
 	return 0;
 }
