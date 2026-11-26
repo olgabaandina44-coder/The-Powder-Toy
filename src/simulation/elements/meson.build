@@ -303,6 +303,7 @@
     'ARGL',
     'MHYD',
     'NTRM',
+    'QGP',
 
 ]
 
