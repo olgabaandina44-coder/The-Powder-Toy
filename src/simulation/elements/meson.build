@@ -195,7 +195,6 @@
 	'RSSS',
 	'BASE',
 	'SEED',
-    'QFLX',
 	'GRPH',
     'BORN',
     'ALOY',
