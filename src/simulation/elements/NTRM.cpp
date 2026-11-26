@@ -47,7 +47,7 @@ void Element::Element_NTRM()
 
 static int update(UPDATE_FUNC_ARGS)
 {
-	sim->gravIn.mass[y / CELL][x / CELL] += 12.0f;
+	sim->gravIn.mass[Vec2<int>{ x / CELL, y / CELL }] += 12.0f;
 	if (sim->rng.chance(1, 250) && !sim->photons[y][x])
 	{
 		sim->create_part(-3, x, y, PT_NEUT);
