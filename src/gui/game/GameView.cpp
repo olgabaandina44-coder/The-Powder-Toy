@@ -1,5 +1,6 @@
 #include "GameView.h"
 
+
 #include "Brush.h"
 #include "tool/DecorationTool.h"
 #include "tool/PropertyTool.h"
@@ -44,6 +45,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <SDL.h>
+#include <ctime>
+#include <cstdio>
 
 class SplitButton : public ui::Button
 {
@@ -2698,7 +2701,7 @@ String hudLine1 = sampleInfo.Build();
 
 		if (hudLine2.length() > 0)
 		{
-			int w2 = Graphics::TextSize(hudLine2).X - 1;
+			int w2 = Graphics::info(hudLine2).X - 1;
 			g->BlendFilledRect(RectSized(Vec2{ XRES-20-w2, hudY }, Vec2{ w2+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
 			g->BlendText({ XRES-16-w2, hudY + 4 }, hudLine2, 0xFFFFFF_rgb .WithAlpha(int(alpha*0.75f)));
 			hudY += 15;
@@ -2777,9 +2780,14 @@ String hudLine1 = sampleInfo.Build();
 
 	if(showHud && introText < 51)
 	{
-		//FPS and some version info
-		StringBuilder fpsInfo;
-		fpsInfo << Format::Precision(2) << "FPS: " << ui::Engine::Ref().GetFps();
+
+	//FPS and some version info
+	StringBuilder fpsInfo;
+	std::time_t now = std::time(nullptr);
+	std::tm *ltm = std::localtime(&now);
+	char timeBuf[16];
+	std::snprintf(timeBuf, sizeof(timeBuf), "%02d:%02d:%02d, ", ltm->tm_hour, ltm->tm_min, ltm->tm_sec);
+	fpsInfo << timeBuf << Format::Precision(2) << "FPS: " << ui::Engine::Ref().GetFps();
 
 		if (showDebug)
 		{
