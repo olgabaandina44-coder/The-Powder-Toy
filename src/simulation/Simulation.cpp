@@ -2401,7 +2401,7 @@ void SimulationImpl::UpdateParticles(int start, int end)
 			{
 				if (t == PT_H2 || t == PT_HELM)
 					parts[i].vy -= 0.025f;
-				else if (t == PT_RADN || t == PT_XENO || t == PT_CO2)
+				else if (t == PT_RADN || t == PT_NBLE || t == PT_CO2)
 					parts[i].vy += 0.025f;
 			}
 
