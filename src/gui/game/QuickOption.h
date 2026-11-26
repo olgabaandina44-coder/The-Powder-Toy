@@ -73,3 +73,10 @@ public:
 	}
 };
 
+class ScientificOption: public QuickOption
+{
+public:
+	ScientificOption(GameModel * m);
+	bool GetToggle() override;
+	void perform() override;
+};
