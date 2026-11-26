@@ -2700,8 +2700,8 @@ String hudLine1 = sampleInfo.Build();
 
 		if (hudLine2.length() > 0)
 		{
-			int w2 = Graphics::info(hudLine2).X - 1;
-			g->BlendFilledRect(RectSized(Vec2{ XRES-20-w2, hudY }, Vec2{ w2+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
+					int w2 = Graphics::TextSize(hudLine2).X - 1;
+		g->BlendFilledRect(RectSized(Vec2{ XRES-20-w2, hudY }, Vec2{ w2+8, 15 }), 0x000000_rgb .WithAlpha(int(alpha*0.5f)));
 			g->BlendText({ XRES-16-w2, hudY + 4 }, hudLine2, 0xFFFFFF_rgb .WithAlpha(int(alpha*0.75f)));
 			hudY += 15;
 		}
