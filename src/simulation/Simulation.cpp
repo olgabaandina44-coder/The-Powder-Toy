@@ -2372,6 +2372,45 @@ void SimulationImpl::UpdateParticles(int start, int end)
 			parts[i].vx += elements[t].Diffusion*(2.0f*rng.uniform01()-1.0f);
 			parts[i].vy += elements[t].Diffusion*(2.0f*rng.uniform01()-1.0f);
 		}
+				if (scientific_physics)
+		{
+			// 1. Stefan-Boltzmann thermal radiation (P ~ T^4) for hot matter
+			if (parts[i].temp > 1000.0f && !(elements[t].Properties & TYPE_ENERGY) && !sd.IsHeatInsulator(parts[i]))
+			{
+				float tNorm = parts[i].temp * 0.0001f;
+				float radLoss = 0.35f * tNorm * tNorm * tNorm * tNorm;
+				parts[i].temp = restrict_flt(parts[i].temp - radLoss, MIN_TEMP, MAX_TEMP);
+				if (aheat_enable)
+					hv[y / CELL][x / CELL] = restrict_flt(hv[y / CELL][x / CELL] + radLoss * 0.15f, MIN_TEMP, MAX_TEMP);
+			}
+
+			// 2. Quadratic aerodynamic drag (F ~ v^2)
+			if (!(elements[t].Properties & (TYPE_SOLID | TYPE_ENERGY)))
+			{
+				float speedSq = parts[i].vx * parts[i].vx + parts[i].vy * parts[i].vy;
+				if (speedSq > 4.0f)
+				{
+					float drag = 1.0f - std::min(0.08f, speedSq * 0.0004f);
+					parts[i].vx *= drag;
+					parts[i].vy *= drag;
+				}
+			}
+
+			// 3. Molar mass buoyancy stratification for gases
+			if (elements[t].Properties & TYPE_GAS)
+			{
+				if (t == PT_H2 || t == PT_HELM)
+					parts[i].vy -= 0.025f;
+				else if (t == PT_RADN || t == PT_XENO || t == PT_CO2)
+					parts[i].vy += 0.025f;
+			}
+
+			// 4. Thermal air expansion (Charles's law P ~ T)
+			if (aheat_enable && hv[y / CELL][x / CELL] > 450.0f && rng.chance(1, 20))
+			{
+				pv[y / CELL][x / CELL] += (hv[y / CELL][x / CELL] - 450.0f) * 0.00015f;
+			}
+		}
 
 		auto transitionOccurred = TransitionPhase(i, neighbourhood);
 		if (!parts[i].type)
