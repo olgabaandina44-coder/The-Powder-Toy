@@ -160,6 +160,7 @@ public:
 	int pretty_powder = 0;
 	int sandcolour_frame = 0;
 	int deco_space = DECOSPACE_SRGB;
+	int scientific_physics = 0;
 
 	// initialized in clear_sim
 	bool elementRecount;
