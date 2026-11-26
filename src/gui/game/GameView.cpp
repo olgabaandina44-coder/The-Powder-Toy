@@ -1,6 +1,5 @@
 #include "GameView.h"
 
-
 #include "Brush.h"
 #include "tool/DecorationTool.h"
 #include "tool/PropertyTool.h"
