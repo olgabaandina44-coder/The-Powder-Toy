@@ -98,3 +98,30 @@ void ConsoleShowOption::perform()
 {
 	c->ShowConsole();
 }
+
+ScientificOption::ScientificOption(GameModel * m):
+QuickOption("S", "Scientific Physics Mode (Radiation T^4, Drag, Buoyancy, AHeat, NGrav)", m, Toggle)
+{
+
+}
+bool ScientificOption::GetToggle()
+{
+	return m->GetSimulation()->scientific_physics;
+}
+void ScientificOption::perform()
+{
+	auto *sim = m->GetSimulation();
+	sim->scientific_physics = !sim->scientific_physics;
+	if (sim->scientific_physics)
+	{
+		sim->water_equal_test = 1;
+		m->SetAHeatEnable(true);
+		m->SetNewtonianGravity(true);
+		m->SetInfoTip("Scientific Physics: On (T^4 Radiation, Drag, Buoyancy, AHeat, NGrav)");
+	}
+	else
+	{
+		m->SetInfoTip("Scientific Physics: Off");
+	}
+	m->UpdateQuickOptions();
+}
